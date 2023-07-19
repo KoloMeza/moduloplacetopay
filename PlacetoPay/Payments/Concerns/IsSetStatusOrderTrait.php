@@ -23,7 +23,7 @@ trait IsSetStatusOrderTrait
                 $payment = $order->getPayment();
             }
 
-            $info = $this->_config->getInfoModel();
+            $info = $this->config->getInfoModel();
             $transactions = $information->payment();
             $this->debugLogger->logInfo('Get payment information before update status and information', ['data' => $payment->getAdditionalInformation()]);
             $this->debugLogger->logInfo('Transaction', ['data' => $transactions]);
