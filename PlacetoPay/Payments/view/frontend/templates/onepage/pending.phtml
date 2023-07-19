@@ -1,0 +1,68 @@
+<?php
+
+/** @var $block \PlacetoPay\Payments\Block\Frontend\Onepage\Pending */
+
+?>
+<?php if ($warning = $block->getWarningMessage()): ?>
+    <p><?= $block->escapeHtml($warning) ?></p>
+<?php endif ?>
+<?php if ($block->getRealOrderId()): ?>
+    <?php
+        $order = $block->getOrder();
+        $payment = $order->getPayment();
+        $information = $payment->getAdditionalInformation();
+    ?>
+
+    <div class="placetopay-checkout-onepage">
+        <?php if ($order): ?>
+            <?php if ($order->getStatus() == 'failed'): ?>
+                <p><?= $block->escapeHtml(__('Unfortunately your order cannot be processed as the originating bank/merchant has declined your transaction. Please attempt your purchase again.')) ?></p>
+
+                <?php if (isset($information['authorization'])): ?>
+                    <li>
+                        <p><?= __('Authorization/CUS:') ?></p>
+                        <p><?= $block->escapeHtml($information['authorization']) ?></p>
+                    </li>
+                <?php endif ?>
+            <?php else: ?>
+                <?php if (isset($information['process_url'])): ?>
+                    <p>
+                        <?= $block->escapeHtml(__('For more information about the status of your order: <a href="%1" target="_blank">view order detail</a>', $information['process_url']), ['a']) ?>
+                    </p>
+                <?php endif ?>
+                <ul class="order-details">
+                    <li>
+                        <p><?= __('Order status:') ?></p>
+                        <p><?= $block->escapeHtml(__($information['status'])) ?></p>
+                    </li>
+                    <li>
+                        <p><?= __('Order Number:') ?></p>
+                        <p><?= $block->escapeHtml($block->getRealOrderId()) ?></p>
+                    </li>
+                    <li>
+                        <p><?= __('Date:') ?></p>
+                        <p><?= $block->escapeHtml($block->dateFormat($information['status_date'], 'F d, Y, g:i a')) ?></p>
+                    </li>
+                    <li>
+                        <p><?= __('Total Paid:') ?></p>
+                        <p><?= $block->getFormattedPrice($order->getGrandTotal()) ?></p>
+                    </li>
+                    <li>
+                        <p><?= __('Payment method:') ?></p>
+                        <p><?= $block->escapeHtml($payment->getMethodInstance()->getTitle()) ?></p>
+                    </li>
+                    <?php if (isset($information['authorization'])): ?>
+                        <li>
+                            <p><?= __('Authorization/CUS:') ?></p>
+                            <p><?= $block->escapeHtml($information['authorization']) ?></p>
+                        </li>
+                    <?php endif ?>
+                </ul>
+            <?php endif ?>
+        <?php else: ?>
+        <?php endif ?>
+    </div>
+<?php endif ?>
+<p>
+    <?= $block->escapeHtml(__('Click <a href="%1">here</a> to continue shopping.', $block->escapeUrl($block->getContinueShoppingUrl())), ['a']) ?>
+</p>

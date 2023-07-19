@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<config
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd"
+>
+    <default>
+        <payment>
+            <placetopay>
+                <active>0</active>
+                <model>PlacetoPay\Payments\Model\PaymentMethod</model>
+                <!--<model>PlacetoPayPaymentsFacade</model>-->
+                <placetopay_development_tk backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <placetopay_test_tk backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <placetopay_production_tk backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <placetopay_custom_tk backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <title><![CDATA[Pay by Card (Placetopay)]]></title>
+                <description><![CDATA[Pay securely through Placetopay.]]></description>
+                <allowspecific>0</allowspecific>
+                <sort_order>1</sort_order>
+                <expiration>2880</expiration>
+                <final_page>magento_default</final_page>
+                <allow_pending_payment>0</allow_pending_payment>
+                <allow_partial_payment>0</allow_partial_payment>
+                <has_cifin>0</has_cifin>
+                <fill_tax_information>0</fill_tax_information>
+                <fill_buyer_information>0</fill_buyer_information>
+                <skip_result>0</skip_result>
+                <tax_rate_parsing>iva_c:valueAddedTax|ice_c:ice|iva_e:valueAddedTax|ice_e:ice</tax_rate_parsing>
+                <email_success>0</email_success>
+            </placetopay>
+        </payment>
+    </default>
+</config>

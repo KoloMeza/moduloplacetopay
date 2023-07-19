@@ -1,0 +1,46 @@
+{
+  "name": "placetopay/magento2-module-payments",
+  "description": "Shared component for accepting online payments in Magento 2 using the PlacetoPay payment gateway.",
+  "type": "magento2-module",
+  "license": [
+    "OSL-3.0",
+    "AFL-3.0"
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://repo.magento.com/"
+    }
+  ],
+  "require": {
+    "php": ">=7.2",
+    "ext-json": "*",
+    "alejociro/redirection": "^1.0.11"
+  },
+  "require-dev": {
+    "magento/magento-coding-standard": "*",
+    "magento/framework": ">=101.0.8 <102 || >=102.0.1",
+    "magento/module-vault": "101.*"
+  },
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "PlacetoPay\\Payments\\": ""
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "([ $COMPOSER_DEV_MODE -eq 0 ] || vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/)"
+    ],
+    "post-update-cmd": [
+      "([ $COMPOSER_DEV_MODE -eq 0 ] || vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/)"
+    ]
+  },
+  "config": {
+    "allow-plugins": {
+      "magento/composer-dependency-version-audit-plugin": true
+    }
+  }
+}

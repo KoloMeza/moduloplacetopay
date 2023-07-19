@@ -1,0 +1,78 @@
+.placetopay.payment-info td {
+    padding-right: 20px;
+    vertical-align: middle;
+}
+
+.placetopay.payment-info td.result {
+    color: #666;
+    font-weight: bold;
+    opacity: 0.9;
+}
+
+.placetopay.payment-info td.result.charge.authorized,
+.placetopay.payment-info td.result.pass {
+    color: #4DAD52;
+}
+
+.placetopay.payment-info td.result img {
+    display: none;
+}
+
+.placetopay.payment-info td.result.pass img.passed {
+    display: inline-block;
+    width: 14px;
+    position: relative;
+    top: 1px;
+}
+
+.placetopay.payment-info td.result.charge.issuer_declined,
+.placetopay.payment-info td.result.charge.blocked,
+.placetopay.payment-info td.result.charge.invalid,
+.placetopay.payment-info td.result.fail {
+    color: #D8000C;
+}
+
+.placetopay.payment-info td.result.fail img.failed {
+    display: inline-block;
+}
+
+.placetopay.payment-info td.result.unchecked {
+    color: #9E9E9E;
+}
+
+.placetopay.payment-info td.result.charge.manual_review,
+.placetopay.payment-info td.result.radar.elevated {
+    color: orange;
+}
+
+.placetopay.payment-info td.result {
+    font-weight: bold;
+}
+
+ul#payment_form_placetopay_payments {
+    padding-left: 0;
+}
+
+.placetopay-admin-config .heading {
+    background: url("https://static.placetopay.com/placetopay-logo.svg") no-repeat 0 50% / 18rem auto;
+    padding-left: 20rem;
+}
+
+.placetopay-admin-config .heading-cl {
+    background: url("https://banco.santander.cl/uploads/000/015/050/0affa7e1-10e5-45ff-b0e3-7616aee7d686/original/getnet_logo.svg") no-repeat 0 50% / 18rem auto;
+    padding-left: 20rem;
+}
+
+.placetopay-admin-config .button-container {
+    float: right;
+}
+
+.placetopay-admin-config .config-alt {
+    height: 28px;
+    margin: 0.5rem 0 0;
+    width: 230px;
+}
+
+.placetopay-admin-config.section-config.active > .admin__collapsible-block + input + fieldset {
+    margin-left: 40px;
+}
