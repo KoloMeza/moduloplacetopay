@@ -6,13 +6,14 @@ use Dnetix\Redirection\Entities\Status;
 use Dnetix\Redirection\Message\RedirectResponse;
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionModel;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use PlacetoPay\Payments\Exception\PlacetoPayException;
-use Movistar\Checkout\Logger\Logger;
-
+use PlacetoPay\Payments\Helper\DebugLogger;
+use Psr\Log\LoggerInterface;
 
 class Info
 {
@@ -21,10 +22,15 @@ class Info
      */
     protected $transactionBuilder;
 
-    public function __construct(BuilderInterface $transactionBuilder,Logger $logger)
+    /**
+     * @var OrderPaymentRepositoryInterface
+     */
+    protected $orderPaymentRepository;
+
+    public function __construct(BuilderInterface $transactionBuilder, OrderPaymentRepositoryInterface $orderPaymentRepository)
     {
         $this->transactionBuilder = $transactionBuilder;
-        $this->_logger = $logger;
+        $this->orderPaymentRepository = $orderPaymentRepository;
     }
 
     /**
@@ -35,8 +41,13 @@ class Info
         Payment $payment,
         RedirectResponse $response,
         string $env,
-        Order $order
+        Order $order,
+        DebugLogger $logger
     ) {
+        $logger->logInfo('Add information to payment ' , ['id' => $payment->getId()]);
+
+        $logger->logInfo('Response information ' , ['data' => $response->toArray()]);
+
         $payment->setLastTransId($response->requestId());
         $payment->setTransactionId($response->requestId());
         $payment->setIsTransactionClosed(0);
@@ -51,7 +62,9 @@ class Info
 
         $payment->addTransactionCommentsToOrder($transaction, __('pending'));
 
-        $payment->setAdditionalInformation([
+        $logger->logInfo('Transaction information ' , ['data' => $transaction->toArray()]);
+
+        $additionalInformation = [
             'request_id' => $response->requestId(),
             'process_url' => $response->processUrl(),
             'status' => $response->status()->status(),
@@ -60,11 +73,17 @@ class Info
             'status_date' => $response->status()->date(),
             'environment' => $env,
             'transactions' => [],
-        ]);
+        ];
+
+        $logger->logInfo('Additional information', ['data' => $additionalInformation]);
+
+        $payment->setAdditionalInformation($additionalInformation);
 
         try {
-            $payment->save();
+            $this->orderPaymentRepository->save($payment);
+            $logger->logWarning('Payment additional information', ['data' => $payment->getAdditionalInformation()]);
         } catch (Exception $ex) {
+            $logger->logWarning('Exception to add additional information', ['exception' => $ex->getMessage()]);
             throw new PlacetoPayException($ex->getMessage(), 401);
         }
     }
@@ -73,7 +92,7 @@ class Info
      * @throws LocalizedException
      * @throws PlacetoPayException
      */
-    public function updateStatus(Payment $payment, Status $status, ?array $transactions = null)
+    public function updateStatus(Payment $payment, Status $status,DebugLogger $logger, ?array $transactions = null)
     {
         $information = $payment->getAdditionalInformation();
         $parsedTransactions = $information['transactions'];
@@ -90,8 +109,8 @@ class Info
                 $installments = '';
                 $batch = '';
                 $line = '';
-                $this->_logger->info('DEBUG LOTE');
-                $this->_logger->info(print_r($transaction->processorFields(),true));
+                $logger->logInfo('DEBUG LOTE');
+                $logger->logInfo(print_r($transaction->processorFields(),true));
                 //TODO traer cuotas de pago
 
                 foreach ($transaction->processorFields() as $processorField) {
@@ -104,12 +123,15 @@ class Info
                     if(is_array($processorField->value())){
                         if(isset($processorField->value()['installments'])){
                             $installments = $processorField->value()['installments'];
-                            $this->_logger->info(print_r($installments,true));
+                            $logger->info(print_r($installments,true));
                         }
                     }
 
                     if ($bin != '' && $lastDigits != '') break;
                 }
+
+                $logger->logInfo('DEBUG LOTE');
+
 
                 $parsedTransactions[$transaction->internalReference()] = [
                     'authorization' => $transaction->authorization(),
@@ -139,22 +161,29 @@ class Info
             'authorization' => $lastTransaction ? $lastTransaction->authorization() : null,
             'refunded' => $lastTransaction ? $lastTransaction->refunded() : false,
             'transactions' => $parsedTransactions,
-        ]);
+        ], $logger);
     }
 
     /**
      * @throws LocalizedException
      * @throws PlacetoPayException
      */
-    public function importToPayment(Payment $payment, array $data)
+    public function importToPayment(Payment $payment, array $data, DebugLogger $logger)
     {
         $actual = $payment->getAdditionalInformation() ? $payment->getAdditionalInformation() : [];
 
+        $logger->logInfo('Initialize update additional information to payment', ['id' => $payment->getId()]);
+        $logger->logInfo('Current information', ['data' => $actual]);
+        $logger->logInfo('New data to update', ['data' => $data]);
+
         $payment->setAdditionalInformation(array_merge($actual, $data));
+        $logger->logWarning('additional information', ['data' => $payment->getAdditionalInformation()]);
 
         try {
-            $payment->save();
+            $this->orderPaymentRepository->save($payment);
+            $logger->logInfo('Payment information save', ['data' => $payment->getAdditionalInformation()]);
         } catch (Exception $ex) {
+            $logger->logWarning('exception message', ['data' => $ex->getMessage()]);
             throw new PlacetoPayException($ex->getMessage(), 401);
         }
     }
