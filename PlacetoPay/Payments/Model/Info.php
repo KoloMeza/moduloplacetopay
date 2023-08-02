@@ -13,6 +13,7 @@ use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionModel;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use PlacetoPay\Payments\Exception\PlacetoPayException;
+use PlacetoPay\Payments\Helper\DebugLogger;
 
 class Info
 {
@@ -40,8 +41,13 @@ class Info
         Payment $payment,
         RedirectResponse $response,
         string $env,
-        Order $order
+        Order $order,
+        DebugLogger $logger
     ) {
+        $logger->logInfo('Add information to payment ' , ['id' => $payment->getId()]);
+
+        $logger->logInfo('Response information ' , ['data' => $response->toArray()]);
+
         $payment->setLastTransId($response->requestId());
         $payment->setTransactionId($response->requestId());
         $payment->setIsTransactionClosed(0);
@@ -56,7 +62,9 @@ class Info
 
         $payment->addTransactionCommentsToOrder($transaction, __('pending'));
 
-        $payment->setAdditionalInformation([
+        $logger->logInfo('Transaction information ' , ['data' => $transaction->toArray()]);
+
+        $additionalInformation = [
             'request_id' => $response->requestId(),
             'process_url' => $response->processUrl(),
             'status' => $response->status()->status(),
@@ -65,11 +73,17 @@ class Info
             'status_date' => $response->status()->date(),
             'environment' => $env,
             'transactions' => [],
-        ]);
+        ];
+
+        $logger->logInfo('Additional information', ['data' => $additionalInformation]);
+
+        $payment->setAdditionalInformation($additionalInformation);
 
         try {
             $this->orderPaymentRepository->save($payment);
+            $logger->logInfo('Payment additional information', ['data' => $payment->getAdditionalInformation()]);
         } catch (Exception $ex) {
+            $logger->logWarning('Exception to add additional information', ['exception' => $ex->getMessage()]);
             throw new PlacetoPayException($ex->getMessage(), 401);
         }
     }
@@ -78,7 +92,7 @@ class Info
      * @throws LocalizedException
      * @throws PlacetoPayException
      */
-    public function updateStatus(Payment $payment, Status $status, array $transactions)
+    public function updateStatus(Payment $payment, Status $status, array $transactions,DebugLogger $logger)
     {
         $information = $payment->getAdditionalInformation();
         $parsedTransactions = $information['transactions'];
@@ -144,22 +158,29 @@ class Info
             'refunded' => $lastTransaction ? $lastTransaction->refunded() : false,
             'transactions' => $parsedTransactions,
             'processor_field' => $lastTransaction ? $lastTransaction->processorFieldsToArray() : null
-        ]);
+        ], $logger);
     }
 
     /**
      * @throws LocalizedException
      * @throws PlacetoPayException
      */
-    public function importToPayment(Payment $payment, array $data)
+    public function importToPayment(Payment $payment, array $data, DebugLogger $logger)
     {
         $actual = $payment->getAdditionalInformation() ? $payment->getAdditionalInformation() : [];
 
+        $logger->logInfo('Initialize update additional information to payment', ['id' => $payment->getId()]);
+        $logger->logInfo('Current information', ['data' => $actual]);
+        $logger->logInfo('New data to update', ['data' => $data]);
+
         $payment->setAdditionalInformation(array_merge($actual, $data));
+        $logger->logInfo('additional information', ['data' => $payment->getAdditionalInformation()]);
 
         try {
             $this->orderPaymentRepository->save($payment);
+            $logger->logInfo('Payment information save', ['data' => $payment->getAdditionalInformation()]);
         } catch (Exception $ex) {
+            $logger->logWarning('exception message', ['data' => $ex->getMessage()]);
             throw new PlacetoPayException($ex->getMessage(), 401);
         }
     }
