@@ -17,6 +17,7 @@ use PlacetoPay\Payments\Concerns\IsSetStatusOrderTrait;
 use PlacetoPay\Payments\Constants\Country;
 use PlacetoPay\Payments\Exception\PlacetoPayException;
 use PlacetoPay\Payments\Helper\Data as Config;
+use PlacetoPay\Payments\Helper\DebugLogger;
 use PlacetoPay\Payments\Helper\OrderHelper;
 use PlacetoPay\Payments\Logger\Logger as LoggerInterface;
 use PlacetoPay\Payments\Model\Adminhtml\Source\Discount;
@@ -71,6 +72,16 @@ class PlacetoPayPayment
      */
     private $tax;
 
+    /**
+     * @var string
+     */
+    protected $uuid;
+
+    /**
+     * @var DebugLogger
+     */
+    protected $debugLogger;
+
     public function __construct(
         Config $config,
         LoggerInterface $logger,
@@ -89,6 +100,9 @@ class PlacetoPayPayment
         $this->header = $header;
         $this->item = $item;
         $this->tax = $tax;
+        $this->uuid = uniqid();
+
+        $this->debugLogger = new DebugLogger($this->uuid, $this->logger);
 
         $settings = [
             'login' => $config->getLogin(),
@@ -106,7 +120,11 @@ class PlacetoPayPayment
     public function getCheckoutRedirect(Order $order): ?string
     {
         try {
+            $this->debugLogger->logInfo('Initialize redirection to checkout to order', ['id' => $order->getId()] );
+
             $response = $this->gateway()->request($this->getRedirectRequestData($order));
+
+            $this->debugLogger->logInfo('Response of checkout', ['data' => $response->toArray()]);
 
             if (!$response->isSuccessful()) {
                 $this->logger->debug(
@@ -127,7 +145,8 @@ class PlacetoPayPayment
                     $order->getPayment(),
                     $response,
                     $this->config->getMode(),
-                    $order
+                    $order,
+                    $this->debugLogger
                 );
 
             return $response->processUrl();

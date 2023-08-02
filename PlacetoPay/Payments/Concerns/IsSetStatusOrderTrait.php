@@ -25,7 +25,10 @@ trait IsSetStatusOrderTrait
 
             $info = $this->config->getInfoModel();
             $transactions = $information->payment();
-            $info->updateStatus($payment, $status, $transactions);
+            $this->debugLogger->logInfo('Get payment information before update status and information', ['data' => $payment->getAdditionalInformation()]);
+            $this->debugLogger->logInfo('Transaction', ['data' => $transactions]);
+            $info->updateStatus($payment, $status, $transactions, $this->debugLogger);
+            $this->debugLogger->logInfo('Get payment information after update status and information', ['data' => $payment->getAdditionalInformation()]);
 
             if ($status->isApproved()) {
                 if ($information->lastApprovedTransaction()->refunded()) {
