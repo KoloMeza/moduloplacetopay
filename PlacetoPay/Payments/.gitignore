@@ -1,0 +1,8 @@
+/vendor
+/.idea
+/.vagrant
+/.scannerwork
+.env
+composer.lock
+*/*/auth.json
+.php-cs-fixer.cache

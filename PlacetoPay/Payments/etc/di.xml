@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="PlacetoPay\Payments\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="PlacetoPay\Payments\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">placetopay</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">PlacetoPay\Payments\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
+    <preference for="PlacetoPay\Payments\Api\ServiceInterface" type="PlacetoPay\Payments\Api\Service" />
+    <type name="Magento\Sales\Model\Order\Email\Container\OrderIdentity">
+        <plugin name="change_is_enable_method" type="\PlacetoPay\Payments\Plugin\Sales\Order\Email\Container\OrderIdentityPlugin"/>
+    </type>
+</config>

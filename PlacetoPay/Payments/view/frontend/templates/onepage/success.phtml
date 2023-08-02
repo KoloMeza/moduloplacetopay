@@ -1,0 +1,173 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+?>
+<?php /** @var $block \PlacetoPay\Payments\Block\Frontend\Onepage\Success */ ?>
+<?php $order = $block->getOrder(); ?>
+<?php $payment = $order->getPayment(); ?>
+<?php $information = $payment->getAdditionalInformation(); ?>
+<div class="checkout-success">
+    <?= $block->getAdditionalInfoHtml() ?>
+
+    <div class="placetopay-checkout-onepage">
+        <?php if ($order) : ?>
+            <?php
+            $items = null;
+
+            foreach($order->getAllVisibleItems() as $orders){
+                $items = $orders;
+
+            }
+
+            ?>
+            <?php if ($order->getStatus() == 'failed') : ?>
+                <p><?= $block->escapeHtml(__('Unfortunately your order cannot be processed as the originating bank/merchant has declined your transaction. Please attempt your purchase again.')) ?></p>
+
+                <?php if (isset($information['authorization'])): ?>
+                    <li>
+                        <p><?= __('Authorization/CUS:') ?></p>
+                        <p><?= $block->escapeHtml($information['authorization']) ?></p>
+                    </li>
+                <?php endif ?>
+            <?php else : ?>
+
+
+                <div class="checkout-success">
+                    <div class="container">
+                        <div class="row py-5">
+                            <div class="col-sm-12 col-lg-6 text-center">
+                                <img src="<?php echo $block->getViewFileUrl('images/img_success.png') ?>">
+                            </div>
+                            <div class="col-sm-12 col-lg-6 pt-1">
+                                <h2 class="fs-1 text-center text-md-start">¡Felicidades!</h2>
+                                <p class="body-1 pt-1 lh-sm">Tu nuevo equipo estará contigo dentro de los próximos <strong>4 días hábiles.</strong>En breve te contactaremos para coordinar la entrega .</p>
+                                <div class="row">
+                                    <div class="col-12 m-auto">
+                                        <img class="float-start col-sm-1 col-2 mx-2 mt-2 icon_success"
+                                             src="<?php echo $block->getViewFileUrl('images/success_check.png') ?>">
+                                        <p class="body-2 lh-sm d-grid">Recuerda que por tu seguridad, al momento de la entrega, <strong> debe estar presente el titular de la tarjeta crédito/débito con su cédula y el titular de la línea.</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container-sm">
+
+                            <div class="row info_obo" >
+                                <?php if ($block->fusionFactory()) : ?>
+                                    <div class="col-lg-4 col-12 m-auto">
+                                        <img class="float-start col-sm-2 col-2 mx-4 mb-2 icon_success"
+                                             src="<?php echo $block->getViewFileUrl('images/success_secure.png') ?>">
+                                        <p class="body-2 lh-sm d-grid">Tu código de seguimiento es:<br> <b class="obo_order_id" ><u><?= $block->fusionFactory()['fusion_id']; ?></u></b></p>
+                                    </div>
+                                <?php endif ?>
+                                <div class="col-lg-4 col-12 m-auto">
+                                    <img class="float-start col-sm-2 col-2 mx-4 mb-2 icon_success"
+                                         src="<?php echo $block->getViewFileUrl('images/success_tracking.png') ?>">
+                                    <p class="body-2 lh-sm d-grid">Estado de tu pago
+                                        <?php if (isset($information['process_url'])) : ?>
+                                            </br>
+                                            <?= $block->escapeHtml(
+                                                __('<a href="%1" target="_blank" >Click aquí</a>', $information['process_url']),
+                                                ['a']
+                                            ) ?>
+
+                                        <?php endif ?>
+                                    </p>
+                                </div>
+                                <div class="col-lg-4 col-12 m-auto" id="clictocall-confirmed-order">
+                                    <img class="float-start col-sm-2 col-2 mx-4 mb-2 icon_success"
+                                         src="<?php echo $block->getViewFileUrl('images/success_call.png') ?>">
+                                    <p class="body-2 lh-sm d-grid">Para mayor información comunícate al<br><a href="#"> 096 333 0030</a>
+                                    </p>
+                                </div>
+                            </div>
+                            <?php
+                            ?>
+                            <div class="row pt-2">
+                                <div class="col-sm-1">
+                                </div>
+                                <div class="col-sm-10">
+
+                                    <div class="row info_obo">
+                                        <div class="col-sm-12 text-center pt-3">
+                                            <p class="fs-3 lh-sm">Resumen de tu compra</p>
+                                        </div>
+                                    </div>
+                                    <div class="row info_obo">
+                                        <div class="col-sm-8 text-center pt-2">
+                                            <table>
+                                                <tr class="border-bottom">
+                                                    <td class="body-1 text-start"><strong>Producto:</strong></td>
+                                                    <td class="body-1 text-start productname"><?= $items->getSku();?></td>
+                                                </tr>
+                                                <tr class="border-bottom">
+                                                    <td class="body-1 text-start"><strong>Nombre:</strong></td>
+                                                    <td class="body-1 text-start  customer"><?= $order->getCustomerFirstname(). ' ' .$order->getCustomerLastname(); ?> </td>
+                                                </tr>
+                                                <tr class="border-bottom">
+                                                    <td class="body-1 text-start"><strong>Documento:</strong></td>
+                                                    <td class="body-1 text-start identificacion"><?= $order->getCedula(); ?></td>
+                                                </tr>
+                                                <tr class="border-bottom">
+                                                    <td class="body-1 text-start"><strong>Fecha de compra:</strong></td>
+                                                    <td class="body-1 text-start created_at"><?= $block->escapeHtml($block->dateFormat($information['status_date'], 'F d, Y, g:i a')) ?></td>
+                                                </tr>
+                                                <tr class="border-bottom tldata">
+                                                    <td class="body-1 text-start"><strong>Forma de pago:</strong></td>
+                                                    <td class="body-1 text-start">
+                                                        <?= $block->escapeHtml($payment->getMethodInstance()->getTitle()) ?>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-bottom tldata">
+                                                    <td class="body-1 text-start"><strong><?= __('Order status:') ?>:</strong></td>
+                                                    <td class="body-1 text-start">
+                                                        <?= $block->escapeHtml(__($information['status'])) ?>
+                                                    </td>
+                                                </tr>
+                                                <?php if(isset($information['authorization'])) : ?>
+                                                    <tr class="border-bottom tldata">
+                                                        <td class="body-1 text-start"><strong><?= __('Authorization/CUS:') ?>:</strong></td>
+                                                        <td class="body-1 text-start">
+                                                            <?= $block->escapeHtml($information['authorization']) ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endif ?>
+                                            </table>
+                                        </div>
+                                        <div class="col-sm-4 text-center pt-2">
+                                            <table class="custom-table-end">
+                                                <tr >
+                                                    <td class="body-1 text-start"><strong>Subtotal</strong></td>
+                                                    <td class="body-1 text-start base_subtotal">$ <?= number_format($order->getSubtotal(), 2, ',', ' '); ?></td>
+                                                </tr>
+                                                <tr class="iva_general" >
+                                                    <td class="body-1 text-start"><strong>IVA</strong></td>
+                                                    <td class="body-1 text-start iva">$ <?= number_format($order->getTaxAmount(), 2, ',', ' '); ?></td>
+                                                </tr>
+                                                <tr class="border-bottom">
+                                                    <td class="body-1 text-start"><strong>Envío:</strong></td>
+                                                    <td class="body-1 text-start">Gratis</td>
+                                                </tr>
+                                                <tr class="reno">
+                                                    <td class="body-1 text-start"><strong>TOTAL:</strong></td>
+                                                    <td class="body-1 text-start base_grand_total">$ <?= number_format($order->getGrandTotal(), 2, ',', ' '); ?></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-sm-1">
+                                </div>
+                            </div>
+                            <?php
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif ?>
+        <?php else : ?>
+        <?php endif ?>

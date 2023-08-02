@@ -1,0 +1,63 @@
+<div class="payment-method" id="payment-method-placetopay" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label class="label" data-bind="attr: {'for': getCode()}">
+            <span class="placetopay-icon-container">
+                <span data-bind="html: getPaymentIcons()"></span>
+            </span>
+            <span data-bind="text: getTitle()"></span>
+        </label>
+    </div>
+
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+        <div class="placetopay-method-logo" data-bind="html: getLogo()"></div>
+        <div class="placetopay-method-description">
+            <!-- ko i18n: 'You will be redirected to the'--> <!-- /ko --> <span data-bind="text: getTitle()"></span> <!-- ko i18n: 'secure payment page when you place an order.'--><!-- /ko -->
+        </div>
+        <div class="placetopay-method-message" data-bind="if: hasPendingPayment() && allowPendingPayment()">
+            <p class="placetopay-method-message-warning">
+                <!-- ko i18n: 'Warning!'--><!-- /ko -->
+            </p>
+            <p class="placetopay-method-message-text" data-bind="html: pendingMessage()"></p>
+
+            <p class="placetopay-method-message-recommendation">
+                <!-- ko i18n: 'Meanwhile you have pending transactions is not advised to proceed.'--><!-- /ko -->
+            </p>
+        </div>
+
+        <div class="payment-method-message" data-bind="if: hasCifin()">
+            <p class="placetopay-method-message-text" data-bind="html: securityMessage()"></p>
+        </div>
+
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')}
+                        ">
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

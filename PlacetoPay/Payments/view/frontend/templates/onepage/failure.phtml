@@ -1,0 +1,67 @@
+<?php
+
+/** @var $block \PlacetoPay\Payments\Block\Frontend\Onepage\Failure */
+
+?>
+<?php if ($error = $block->getErrorMessage()): ?>
+    <p><?= $block->escapeHtml($error) ?></p>
+<?php endif ?>
+<?php if ($block->getRealOrderId()): ?>
+    <?php
+    $order = $block->getOrder();
+    $payment = $order->getPayment();
+    $information = $payment->getAdditionalInformation();
+    ?>
+
+    <div class="placetopay-checkout-onepage">
+        <?php if ($order): ?>
+            <?php if ($order->getStatus() == 'failed'): ?>
+                <p><?= $block->escapeHtml(__('Unfortunately your order cannot be processed as the originating bank/merchant has declined your transaction. Please attempt your purchase again.')) ?></p>
+
+                <?php if (isset($information['authorization'])): ?>
+                    <li>
+                        <p><?= __('Authorization/CUS:') ?></p>
+                        <p><?= $block->escapeHtml($information['authorization']) ?></p>
+                    </li>
+                <?php endif ?>
+            <?php else: ?>
+                <?php if (isset($information['process_url'])): ?>
+                    <p>
+                        <?= $block->escapeHtml(__('For more information about the status of your order: <a href="%1" target="_blank">view order detail</a>', $information['process_url']), ['a']) ?>
+                    </p>
+                <?php endif ?>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-sm-8 order-2 order-sm-1 text-azul-oscuro">
+                            <p class="text-center text-sm-start mb-4 font-size-40 light">¡Ups! Algo salió mal</p>
+                            <div class="row font-size-20">
+                                <div class="col-12 col-sm-6">
+                                    <p>Estatus de orden: <span class="mage-error text-gris-5"><?= $block->escapeHtml(__($information['status'])) ?></span></p>
+                                    <p>Número de orden: <span class="mage-error text-gris-5"><?= $block->escapeHtml($block->getRealOrderId()) ?></span></p>
+                                    <p>Fecha: <span class="mage-error text-gris-5"><?= $block->escapeHtml($block->dateFormat($information['status_date'], 'F d, Y, g:i a')) ?></span></p>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <p>Total a pagar: <span class="mage-error text-gris-5"><?= $block->getFormattedPrice($order->getGrandTotal()) ?></span></p>
+                                    <p>Método de pago: <span class="mage-error text-gris-5"><?= $block->escapeHtml($payment->getMethodInstance()->getTitle()) ?></span></p>
+                                    <p>Autorización/CUS: <span class="mage-error text-gris-5"><?= $block->escapeHtml($information['authorization']) ?></span></p>
+                                </div>
+                            </div>
+                            <button class="action primary mt-4">
+                                <span>Volver a la tienda</span>
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-4 align-self-center order-1 order-sm-2">
+                            <img src="<?php echo $block->getViewFileUrl('images/img_failure.png') ?>">
+                        </div>
+                    </div>
+                </div>
+            <?php endif ?>
+        <?php else: ?>
+        <?php endif ?>
+    </div>
+<?php endif ?>
+<p>
+    <?= $block->escapeHtml(__('Click <a href="%1">here</a> to continue shopping.', $block->escapeUrl($block->getContinueShoppingUrl())), ['a']) ?>
+</p>
+
+

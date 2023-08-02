@@ -1,0 +1,39 @@
+version: '3.2'
+services:
+  web:
+    container_name: magento_module
+    build: ./.docker
+    volumes:
+      - type: bind
+        source: .
+        target: /var/www/html/app/code/PlacetoPay/Payments
+    ports:
+      - 80:80
+    depends_on:
+      - db
+    links:
+      - db
+    env_file:
+      - env
+
+  db:
+    container_name: magento_module_db
+    image: mysql:5.6.23
+    volumes:
+      - db-data:/var/lib/mysql/data
+    env_file:
+      - env
+
+  phpmyadmin:
+    container_name: magento_module_phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8080:80
+    links:
+      - db
+
+volumes:
+  db-data:
+
+  data:
+    driver: "local"

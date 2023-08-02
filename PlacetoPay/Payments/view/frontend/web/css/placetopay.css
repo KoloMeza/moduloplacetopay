@@ -1,0 +1,55 @@
+.placetopay-method-message {
+    margin-bottom: 10px;
+}
+.placetopay-method-message-warning {
+    color: #ff0000 !important;
+    font-weight: bold;
+}
+.placetopay-method-message-text {
+    text-align: justify;
+}
+.placetopay-method-message-recommendation {
+    color: #ff0000 !important;
+}
+
+.placetopay-checkout-onepage .order-details {
+    list-style: none;
+    background-color: #f8f8f8;
+    padding: 0;
+    margin: 2em 0;
+}
+
+.placetopay-checkout-onepage .order-details li {
+    padding: 10px 15px;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.placetopay-checkout-onepage .order-details li:first-child {
+    padding-top: 15px;
+}
+
+.placetopay-icon-container {
+    float: right;
+    position: relative;
+    top: -0.6em;
+}
+
+.acceptance_logo {
+    max-width: 34px;
+    max-height: 22px;
+    position: relative;
+    top: 0.4em;
+    margin-right: 2px;
+}
+
+.test-manteca {
+    background-image: url("../icon_card/cafam.svg");
+}
+
+.placetopay-onepage-success .print {
+    display: block;
+    float: right;
+    margin: 23px 0 0;
+}
