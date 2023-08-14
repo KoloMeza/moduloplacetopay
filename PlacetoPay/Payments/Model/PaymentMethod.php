@@ -28,6 +28,7 @@ use Magento\Sales\Model\ResourceModel\Order\Tax\Item;
 use PlacetoPay\Payments\Concerns\IsSetStatusOrderTrait;
 use PlacetoPay\Payments\Constants\PaymentStatus;
 use PlacetoPay\Payments\Helper\Data as Config;
+use PlacetoPay\Payments\Helper\DebugLogger;
 use PlacetoPay\Payments\Logger\Logger as LoggerInterface;
 use PlacetoPay\Payments\Model\Adminhtml\Source\Mode;
 use PlacetoPay\Payments\Model\Info as InfoFactory;
@@ -105,6 +106,17 @@ class PaymentMethod extends AbstractMethod
      */
     protected $infoFactory;
 
+
+    /**
+     * @var string
+     */
+    protected $uuid;
+
+    /**
+     * @var DebugLogger
+     */
+    protected $debugLogger;
+
     /**
      * @var OrderRepositoryInterface
      */
@@ -173,6 +185,9 @@ class PaymentMethod extends AbstractMethod
         $this->infoFactory = $infoFactory;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->version = '1.11.0';
+        $this->uuid = uniqid();
+
+        $this->debugLogger = new DebugLogger($this->uuid, $this->logger);
 
         $this->placetoPayPayment = new PlacetoPayPayment(
             $config,
@@ -182,7 +197,8 @@ class PaymentMethod extends AbstractMethod
             $remoteAddress,
             $httpHeader,
             $taxItem,
-            $tax
+            $tax,
+            $this->debugLogger
         );
     }
 

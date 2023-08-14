@@ -73,11 +73,6 @@ class PlacetoPayPayment
     private $tax;
 
     /**
-     * @var string
-     */
-    protected $uuid;
-
-    /**
      * @var DebugLogger
      */
     protected $debugLogger;
@@ -90,7 +85,8 @@ class PlacetoPayPayment
         RemoteAddress $remoteAddress,
         Header $header,
         Item $item,
-        TaxConfig $tax
+        TaxConfig $tax,
+        DebugLogger $debugLogger
     ) {
         $this->config = $config;
         $this->logger = $logger;
@@ -100,9 +96,8 @@ class PlacetoPayPayment
         $this->header = $header;
         $this->item = $item;
         $this->tax = $tax;
-        $this->uuid = uniqid();
 
-        $this->debugLogger = new DebugLogger($this->uuid, $this->logger);
+        $this->debugLogger = $debugLogger;
 
         $settings = [
             'login' => $config->getLogin(),
